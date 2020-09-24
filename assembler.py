@@ -18,10 +18,12 @@ def buscar(instrucciones,texto): # instrucciones= bus{instruccion:expresion_regu
     texto = re.sub(",", " ", texto)
     
     for ins in instrucciones.values():
+        #print(ins)
         x = re.search(ins, texto)
         if x!=None:
             x = x.group(0)
-            return True
+            if len(x) == len(texto):
+                return True
         
     return False
         
@@ -39,11 +41,11 @@ def abrir_archivo():
 
 def guardar_archivo():
     files = [("ass","*.ass"), ("Archivos de texto","*.txt"), ('All Files', '*.*')]
-    save = filedialog.asksaveasfile(filetypes=files, defaultextension=files)
+    save = filedialog.asksaveasfile(mode='w', filetypes=files, defaultextension=files)
     if save != None:
         contenido = text.get("1.0",'end-1c')
         save.write(contenido)
-        save.close()
+    
 
 def marcar_error(rows):
     pos = str(rows)
@@ -68,7 +70,6 @@ def error():
     #inst = {"MOV A,B": "0000000", "MOV B,A": "0000001"}
 
     bus = exp_regulares(inst.keys())
-    #print(bus)
 
     i = 0
     while i < len(contenido):
@@ -100,16 +101,25 @@ def menu():
     run.add_command(label="Recalcular errores", command=error)
     run.add_command(label="Assembler", command=assembler)
 
+    calculate = Menu(my_menu, tearoff=0)
+    calculate.add_command(label="Recalcular errores", command=error)
+
 
 if __name__ == '__main__':
     root = Tk()
     root.title('Assembler')
     root.geometry("1200x720")
+    root.grid_rowconfigure(0, weight=1)
+    root.grid_columnconfigure((1,2), weight=1)
 
     menu()
 
-    text = Text(root, height=100, width=300, bg="black", fg="white", insertbackground="white")
-    text.pack()
+    text = Text(root, bg="black", fg="white", insertbackground="white")     # textbox code assembly
+    text.grid(row=0, column=1, sticky="nsew")
+    
+
+    text2 = Text(root, bg="black", fg="white", insertbackground="white")    # textbox code assembler
+    text2.grid(row=0, column=2, sticky="nsew")
 
     root.mainloop()
 
