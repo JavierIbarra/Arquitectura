@@ -1,11 +1,11 @@
 # Arquitectura de Comutadores
 
 ## Proyecto 3
-** integrantes: **
+**integrantes:** 
 * Javier Ibarra
 * Juan Roncagliolo
 * Ignacio Mayer
 
 ## Editor Assembler
-** Requisitos: **
+**Requisitos:** 
 * tkinter   sudo apt-get install python3-tk
