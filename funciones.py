@@ -70,7 +70,6 @@ def buscar_data(texto, textbox, textbox_mem=None):
 def buscar_code(texto, variables, pos_textbox, textbox):
 
     texto, posicion_direccionamiento = direccionamientos(texto)
-    print(posicion_direccionamiento)
 
     for val in variables:
         texto = texto.replace(val,str(variables[val]))

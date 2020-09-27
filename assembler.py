@@ -7,7 +7,7 @@ import re
 
 def abrir_archivo():
     files = [("ass","*.ass"), ("Archivos de texto","*.txt"), ('All Files', '*.*')]
-    archivo = filedialog.askopenfilename(title="abrir", filetypes=files)
+    archivo = filedialog.askopenfilename(title="Abrir", filetypes=files)
     if archivo != '' and archivo != ():
         text.delete('1.0', END)
         text2.delete('1.0', END)
@@ -19,8 +19,8 @@ def abrir_archivo():
 
 def guardar_archivo():
     files = [("out","*.out"), ('All Files', '*.*')]
-    archivo = filedialog.asksaveasfilename(title="guardar", filetypes=files)
-    if archivo != None:
+    archivo = filedialog.asksaveasfilename(title="Guardar", filetypes=files)
+    if archivo != '' and archivo != ():
         save = open(archivo, "w")
         contenido = text2.get("1.0",'end-1c')
         save.write(contenido)
@@ -88,11 +88,8 @@ def menu():
 
     run = Menu(my_menu, tearoff=0)
     my_menu.add_cascade(label="Ejecutar", menu=run)
-    run.add_command(label="Recalcular errores", command=error)
+    run.add_command(label="Recalcular Errores", command=error)
     run.add_command(label="Assembler", command=assembler)
-
-    calculate = Menu(my_menu, tearoff=0)
-    calculate.add_command(label="Recalcular errores", command=error)
 
 
 if __name__ == '__main__':
