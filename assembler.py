@@ -1,32 +1,8 @@
 from tkinter import *
 from tkinter import filedialog
+import tkinter.messagebox as MessageBox
+from funciones import *
 import re
-
-def exp_regulares(lista):
-    expreciones = {} 
-    for txt in lista:
-        exp = str(txt)
-        exp = re.sub("Lit", "((25[0-5]|[0-2]?[0-4]?[0-9])|['#'][A-F0-9][A-F0-9])", exp)
-        exp = re.sub("['(']Dir[')']", "['(']((25[0-5]|[0-2]?[0-4]?[0-9])|['#'][A-F0-9][A-F0-9])[')']", exp)
-        exp = re.sub("Dir", "((25[0-5]|[0-2]?[0-4]?[0-9])|['#'][A-F0-9][A-F0-9])", exp)
-        exp = re.sub("\s", "['\\\s']+", exp)
-        exp = re.sub(",", "['\\\s']+", exp)
-        expreciones[txt]=exp
-    return expreciones
-
-def buscar(instrucciones,texto): # instrucciones= bus{instruccion:expresion_regular}
-    texto = re.sub(",", " ", texto)
-    
-    for ins in instrucciones.values():
-        #print(ins)
-        x = re.search(ins, texto)
-        if x!=None:
-            x = x.group(0)
-            if len(x) == len(texto):
-                return True
-        
-    return False
-        
 
 
 def abrir_archivo():
@@ -34,6 +10,7 @@ def abrir_archivo():
     archivo = filedialog.askopenfilename(title="abrir", filetypes=files)
     if archivo != '' and archivo != ():
         text.delete('1.0', END)
+        text2.delete('1.0', END)
         texto = open(archivo, "r")
         for linea in texto.readlines():
             text.insert(INSERT, linea)
@@ -47,42 +24,41 @@ def guardar_archivo():
         save.write(contenido)
     
 
-def marcar_error(rows):
-    pos = str(rows)
-    text.tag_add(pos, pos+".0", pos+".90")
-    text.tag_config(pos, foreground="red")
-
-def correcto(rows):
-    pos = str(rows)
-    text.tag_add(pos, pos+".0", pos+".90")
-    text.tag_config(pos, foreground="white")
 
 def error():
-    contenido = text.get("1.0",'end-1c')
-    contenido = contenido.split("\n")
+    text2.delete('1.0', END)
+    texto = text.get("1.0",'end-1c')
    
-    instrucciones = open("instrucciones.txt","r")
-    inst={}
-    for i in instrucciones.readlines():
-        i = i.split("|")
-        inst[i[0]]=i[1][0:7]
+    contenido = separar(texto)
 
-    #inst = {"MOV A,B": "0000000", "MOV B,A": "0000001"}
+    data = contenido[1]
+    code = contenido[0]
 
-    bus = exp_regulares(inst.keys())
+    variables, pos_textbox = buscar_data(data,text)
 
-    i = 0
-    while i < len(contenido):
-        valido = buscar(bus, contenido[i])
-        if valido:
-            correcto(i+1)
-        else:
-            marcar_error(i+1)
-        i += 1
+    instrucciones_texto , inst, literales= buscar_code(code, variables, pos_textbox, text)
 
 
 def assembler():
-    pass
+    text2.delete('1.0', END)
+    texto = text.get("1.0",'end-1c')
+   
+    contenido = separar(texto)
+
+    data = contenido[1]
+    code = contenido[0]
+
+    variables, pos_textbox = buscar_data(data,text)
+
+    instrucciones_texto , inst, literales= buscar_code(code, variables, pos_textbox, text)
+    #print(instrucciones_texto)
+    
+    for codigo in inst:         #inst = {"MOV A,B": "0000000", "MOV B,A": "0000001"}
+        instrucciones_texto = instrucciones_texto.replace(codigo, inst[codigo])
+    for lit in literales:
+        instrucciones_texto = instrucciones_texto.replace("Lit", lit, 1)
+
+    text2.insert(INSERT, instrucciones_texto)
 
 def menu():
     my_menu = Menu(root)
