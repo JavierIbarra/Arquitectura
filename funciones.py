@@ -1,4 +1,7 @@
+from tkinter import *
+from tkinter import filedialog
 import tkinter.messagebox as MessageBox
+from funciones import *
 import re
 
 def error(linea, textbox):
@@ -28,11 +31,15 @@ def separar(contenido):
     
     return respuesta
 
-def buscar_data(texto, textbox):
+def buscar_data(texto, textbox, textbox_mem=None):
     dicc = {}
     posicion = 0
-    pos_textbox = 1
-    memoria = open("mem.mem","w")
+    if texto == "":
+        pos_textbox = 1 
+    else:
+        pos_textbox = 2
+    if textbox_mem != None:
+        memoria = open("codigo.mem","w")
     texto = texto.split('\n')
     if texto != [""]:
         for linea in texto:
@@ -43,32 +50,38 @@ def buscar_data(texto, textbox):
                     name = re.search("[a-z]+[a-z0-9]*", linea).group()
                     valor = re.search("['\s']((25[0-5]|[0-2]?[0-4]?[0-9])|['#'][A-F0-9][A-F0-9])", linea).group()
                     dicc[name] = posicion
-                    valor = binario(valor[1:])
-                    memoria.write(str(valor)+"\n")
+                    if textbox_mem != None:
+                        valor = binario(valor[1:])
+                        memoria.write(str(valor)+"\n")
+                        textbox_mem.insert(INSERT, str(valor)+"\n")
                     posicion += 1
                     correcto(pos_textbox, textbox)
             else:
                 error(pos_textbox, textbox)
 
             pos_textbox += 1
-
-    memoria.close()
+        pos_textbox += 1
+    if textbox_mem != None:
+        memoria.close()
 
     return dicc, pos_textbox
 
 
 def buscar_code(texto, variables, pos_textbox, textbox):
 
-    instrucciones_texto = texto
-    for val in variables:
-        texto.replace(val,str(variables[val]))
+    texto, posicion_direccionamiento = direccionamientos(texto)
+    print(posicion_direccionamiento)
 
+    for val in variables:
+        texto = texto.replace(val,str(variables[val]))
+    instrucciones_texto = texto
+
+    
     literales = re.findall("25[0-5]|[0-2]?[0-4]?[0-9]|['#'][A-F0-9][A-F0-9]",instrucciones_texto)       # guardamos literales
     literales = binario_lista(literales)
     instrucciones_texto = re.sub("['(']((25[0-5]|[0-2]?[0-4]?[0-9])|['#'][A-F0-9][A-F0-9])[')']","(Dir)",instrucciones_texto)
     instrucciones_texto = re.sub("((25[0-5]|[0-2]?[0-4]?[0-9])|['#'][A-F0-9][A-F0-9])","Lit",instrucciones_texto)
     instrucciones_texto = re.sub("['\s']Lit['\n']"," Dir\n",instrucciones_texto)
-    #print(instrucciones_texto)
 
     instrucciones = open("instrucciones.txt","r")
     inst={}
@@ -83,8 +96,13 @@ def buscar_code(texto, variables, pos_textbox, textbox):
     lineas_malas = 0
     lineas_correctas = 0
     texto = texto.split('\n')
+    n=0
+    while n < len(posicion_direccionamiento):
+        posicion_direccionamiento[n] += pos_textbox
+        n+=1
     for linea in texto:
-        
+        if pos_textbox in posicion_direccionamiento:
+            pos_textbox += 1
         valido = buscar(instrucciones_validas, linea)
         if valido:
             correcto(pos_textbox, textbox)
@@ -107,6 +125,8 @@ def exp_regulares(lista):
         exp = re.sub("Lit", "((25[0-5]|[0-2]?[0-4]?[0-9])|['#'][A-F0-9][A-F0-9])", exp)
         exp = re.sub("['(']Dir[')']", "['(']((25[0-5]|[0-2]?[0-4]?[0-9])|['#'][A-F0-9][A-F0-9])[')']", exp)
         exp = re.sub("Dir", "((25[0-5]|[0-2]?[0-4]?[0-9])|['#'][A-F0-9][A-F0-9])", exp)
+        exp = re.sub("['(']A[')']", "['(']A[')']", exp)
+        exp = re.sub("['(']B[')']", "['(']B[')']", exp)
         exp = re.sub("\s", "['\\\s']+", exp)
         exp = re.sub(",", "['\\\s']+", exp)
         expreciones[txt]=exp
@@ -117,7 +137,6 @@ def buscar(exp_reg,texto): # exp_reg = {instruccion:expresion_regular}
     texto = re.sub(",", " ", texto)
     
     for ins in exp_reg.values():
-        #print(ins)
         x = re.search("['\s']*"+ins, texto)
         if x!=None:
             x = x.group(0)
@@ -148,20 +167,29 @@ def binario(h):
         h = bin(int(h))[2:]
         return h.zfill(8)
         
-"""
-texto = "DATA:\ninicio #A0\nfin #A8\nCODE:\nciclo:\nMOV B,(inicio)\nMOV A,(B)\nCMP A,B"
 
-contenido = separar(texto)
+def direccionamientos(texto):
+    lineas = texto.split('\n')
+    nombre_direcciones = (re.findall("[a-z]+[':']",texto))
+    direcciones = {}
 
-data = contenido[1]
-code = contenido[0]
-print("data:\n",data,"\ncode:\n", code)
+    posicion = 0
+    for linea in lineas:
+        for nombre in nombre_direcciones:
+            x = re.findall(nombre,linea)
+            if x != []:
+                direcciones[nombre] = posicion
+                lineas.pop(posicion)
+                break
+        posicion += 1
 
-variables, pos_textbox = buscar_data(data)
-print(variables)
+    texto = ""
+    for i in lineas:
+        texto += i+"\n"
+    texto=texto[:-1]
 
-print(buscar_code(code, variables, pos_textbox))
+    for nombre in direcciones:
+        texto = texto.replace(nombre[:-1], str(direcciones[nombre]))
 
+    return texto, list(direcciones.values())
 
-print(code.replace("inicio","0"))
-"""

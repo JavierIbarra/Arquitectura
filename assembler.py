@@ -11,28 +11,41 @@ def abrir_archivo():
     if archivo != '' and archivo != ():
         text.delete('1.0', END)
         text2.delete('1.0', END)
+        text3.delete('1.0', END)
         texto = open(archivo, "r")
         for linea in texto.readlines():
             text.insert(INSERT, linea)
     error()
 
 def guardar_archivo():
-    files = [("ass","*.ass"), ("Archivos de texto","*.txt"), ('All Files', '*.*')]
-    save = filedialog.asksaveasfile(mode='w', filetypes=files, defaultextension=files)
-    if save != None:
+    files = [("out","*.out"), ('All Files', '*.*')]
+    archivo = filedialog.asksaveasfilename(title="guardar", filetypes=files)
+    if archivo != None:
+        save = open(archivo, "w")
+        contenido = text2.get("1.0",'end-1c')
+        save.write(contenido)
+        save.close()
+        save = open(archivo[:-4]+".mem", "w")
+        contenido = text3.get("1.0",'end-1c')
+        save.write(contenido)
+        save.close()
+        save = open(archivo[:-4]+".ass", "w")
         contenido = text.get("1.0",'end-1c')
         save.write(contenido)
+        save.close()
     
 
 
 def error():
     text2.delete('1.0', END)
+    text3.delete('1.0', END)
     texto = text.get("1.0",'end-1c')
    
     contenido = separar(texto)
 
-    data = contenido[1]
+    data = contenido[1][:-1]
     code = contenido[0]
+    #print(data.split('\n'), code.split('\n'))
 
     variables, pos_textbox = buscar_data(data,text)
 
@@ -45,19 +58,20 @@ def assembler():
    
     contenido = separar(texto)
 
-    data = contenido[1]
+    data = contenido[1][:-1]
     code = contenido[0]
+    #print(data, code)
 
-    variables, pos_textbox = buscar_data(data,text)
+    variables, pos_textbox = buscar_data(data,text,text3)
 
     instrucciones_texto , inst, literales= buscar_code(code, variables, pos_textbox, text)
-    #print(instrucciones_texto)
-    
+
     for codigo in inst:         #inst = {"MOV A,B": "0000000", "MOV B,A": "0000001"}
         instrucciones_texto = instrucciones_texto.replace(codigo, inst[codigo])
     for lit in literales:
         instrucciones_texto = instrucciones_texto.replace("Lit", lit, 1)
 
+    instrucciones_texto = instrucciones_texto.replace(" ", "")
     text2.insert(INSERT, instrucciones_texto)
 
 def menu():
@@ -90,12 +104,14 @@ if __name__ == '__main__':
 
     menu()
 
-    text = Text(root, bg="black", fg="white", insertbackground="white")     # textbox code assembly
-    text.grid(row=0, column=1, sticky="nsew")
-    
+    text = Text(root, bg="black", fg="white", insertbackground="white")     # textbox code
+    text.grid(row=0, column=1, rowspan=2, sticky="nsew")
 
-    text2 = Text(root, bg="black", fg="white", insertbackground="white")    # textbox code assembler
+    text2 = Text(root, bg="black", fg="white", insertbackground="white")    # textbox assembler
     text2.grid(row=0, column=2, sticky="nsew")
+
+    text3 = Text(root, bg="black", fg="white", insertbackground="white")    # textbox mem
+    text3.grid(row=1, column=2, sticky="nsew")
 
     root.mainloop()
 
