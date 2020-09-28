@@ -54,6 +54,7 @@ def error():
 
 def assembler():
     text2.delete('1.0', END)
+    text3.delete('1.0', END)
     texto = text.get("1.0",'end-1c')
    
     contenido = separar(texto)
@@ -72,6 +73,7 @@ def assembler():
         instrucciones_texto = instrucciones_texto.replace("Lit", lit, 1)
 
     instrucciones_texto = instrucciones_texto.replace(" ", "")
+    instrucciones_texto = instrucciones_texto.replace("\t", "")
     text2.insert(INSERT, instrucciones_texto)
 
 def menu():
