@@ -1,7 +1,6 @@
 from tkinter import *
 from tkinter import filedialog
 import tkinter.messagebox as MessageBox
-from funciones import *
 import re
 
 def error(linea, textbox):
@@ -38,8 +37,6 @@ def buscar_data(texto, textbox, textbox_mem=None):
         pos_textbox = 1 
     else:
         pos_textbox = 2
-    if textbox_mem != None:
-        memoria = open("codigo.mem","w")
     texto = texto.split('\n')
     if texto != [""]:
         for linea in texto:
@@ -52,7 +49,6 @@ def buscar_data(texto, textbox, textbox_mem=None):
                     dicc[name] = posicion
                     if textbox_mem != None:
                         valor = binario(valor[1:])
-                        memoria.write(str(valor)+"\n")
                         textbox_mem.insert(INSERT, str(valor)+"\n")
                     posicion += 1
                     correcto(pos_textbox, textbox)
@@ -61,8 +57,6 @@ def buscar_data(texto, textbox, textbox_mem=None):
 
             pos_textbox += 1
         pos_textbox += 1
-    if textbox_mem != None:
-        memoria.close()
 
     return dicc, pos_textbox
 
