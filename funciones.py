@@ -96,19 +96,21 @@ def buscar_code(texto, variables, pos_textbox, textbox):
     for linea in texto:
         if pos_textbox in posicion_direccionamiento:
             pos_textbox += 1
-        valido = buscar(instrucciones_validas, linea)
-        if valido:
-            correcto(pos_textbox, textbox)
-            lineas_correctas += 1
-        else:
-            error(pos_textbox, textbox)
-            lineas_malas+=1
+
+        x = re.findall("['\s''\n']+", linea)
+        if x == [] or len(x[0]) == len(linea):
+            pass
+        else:         # linea vacia
+            valido = buscar(instrucciones_validas, linea)
+            if valido:
+                correcto(pos_textbox, textbox)
+                lineas_correctas += 1
+            else:
+                error(pos_textbox, textbox)
+                lineas_malas+=1
         pos_textbox += 1
 
-    MessageBox.showinfo("El programa detecto",
-                          "{correcto} lineas validas y {incorrecto} errores".format(correcto=lineas_correctas,
-                                                                                   incorrecto=lineas_malas))
-    return instrucciones_texto, inst, literales
+    return [instrucciones_texto, inst, literales, [lineas_correctas,lineas_malas]]
 
 
 def exp_regulares(lista):
