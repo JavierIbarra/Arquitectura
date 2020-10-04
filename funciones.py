@@ -108,23 +108,27 @@ def buscar_code(texto, variables, pos_textbox, textbox):
         else:         # linea vacia
             valido = buscar(instrucciones_validas, linea)
             
+            instrucion_erronea = False
             if valido:
                 correcto(pos_textbox, textbox)
                 lineas_correctas += 1
+
             else:
-                valores = re.findall("[0-9]+|['#'][0-9A-F]+",linea)
-                error(pos_textbox, textbox,"red")
-                for val in valores:
-                    if val[0] == '#':
-                        val = int((val[1:]),16)
-                    else: 
-                        val = int(val)
-                
-                    if val > 256 or val < 0:
-                        error(pos_textbox, textbox, "yellow")
-                        
-                        
+                error(pos_textbox, textbox,"red") 
+                instrucion_erronea = True    
                 lineas_malas+=1
+
+            valores = re.findall("[0-9]+|['#'][0-9A-F]+",linea)
+            for val in valores:
+                if val[0] == '#':
+                    val = int((val[1:]),16)
+                else: 
+                    val = int(val)
+
+                if (val > 256 or val < 0) and not instrucion_erronea:
+                    error(pos_textbox, textbox, "yellow")
+                    lineas_malas+=1
+
         pos_textbox += 1
 
     return [instrucciones_texto, inst, literales, [lineas_correctas,lineas_malas]]
@@ -134,9 +138,9 @@ def exp_regulares(lista):
     expreciones = {} 
     for txt in lista:
         exp = str(txt)
-        exp = re.sub("Lit", "((25[0-5]|[0-2]?[0-4]?[0-9])|['#'][A-F0-9][A-F0-9])", exp)
-        exp = re.sub("['(']Dir[')']", "['(']((25[0-5]|[0-2]?[0-4]?[0-9])|['#'][A-F0-9][A-F0-9])[')']", exp)
-        exp = re.sub("Dir", "((25[0-5]|[0-2]?[0-4]?[0-9])|['#'][A-F0-9][A-F0-9])", exp)
+        exp = re.sub("Lit", "([0-9]+|['#'][A-F0-9]+)", exp)
+        exp = re.sub("['(']Dir[')']", "['(']([0-9]+|['#'][A-F0-9]+)[')']", exp)
+        exp = re.sub("Dir", "([0-9]+|['#'][A-F0-9]+)", exp)
         exp = re.sub("['(']A[')']", "['(']A[')']", exp)
         exp = re.sub("['(']B[')']", "['(']B[')']", exp)
         exp = re.sub("\s", "['\\\s']+", exp)

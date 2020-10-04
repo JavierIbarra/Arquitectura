@@ -88,11 +88,15 @@ def assembler(event=True):
     for lit in literales:
         instrucciones_texto = instrucciones_texto.replace("Lit", lit, 1)
 
-    instrucciones_texto = instrucciones_texto.replace(" ", "")
-    instrucciones_texto = instrucciones_texto.replace("\t", "")
-    MessageBox.showinfo("El archivo .out",
-                        "El archivo de salida contiene {lineas} lineas".format(lineas=len(instrucciones_texto.split('\n'))))
-    textArea2.insert(INSERT, instrucciones_texto)
+    if respuesta[3][1] == 0:     # No hay errores
+        instrucciones_texto = instrucciones_texto.replace(" ", "")
+        instrucciones_texto = instrucciones_texto.replace("\t", "")
+        MessageBox.showinfo("El archivo .out",
+                            "El archivo de salida contiene {lineas} lineas".format(lineas=len(instrucciones_texto.split('\n'))))
+        textArea2.insert(INSERT, instrucciones_texto)
+    else:
+        MessageBox.showinfo("Error Archivo",
+                            "El archivo no se puede ejecutar ya que contiene {errores} erroes".format(errores=respuesta[3][1]))
 
 def menu():
     my_menu = Menu(root)
