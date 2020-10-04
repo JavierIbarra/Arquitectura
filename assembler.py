@@ -1,11 +1,3 @@
-try:
-    from tkinter import *
-    #from tkinter import filedialog
-    #import tkinter.messagebox as MessageBox
-    import tkinter.font as tkFont
-except ImportError:
-    print(ImportError,"Se requiere el modulo Tkinter")
-
 from funciones import *
 import operator
 import re

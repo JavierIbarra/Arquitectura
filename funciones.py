@@ -1,12 +1,17 @@
-from tkinter import *
-from tkinter import filedialog
-import tkinter.messagebox as MessageBox
+try:
+    from tkinter import *
+    from tkinter import filedialog
+    import tkinter.messagebox as MessageBox
+    import tkinter.font as tkFont
+except ImportError:
+    print(ImportError,"Se requiere el modulo Tkinter")
+
 import re
 
-def error(linea, textbox):
+def error(linea, textbox,color):
     pos = str(linea)
     textbox.tag_add(pos, pos+".0", pos+".90")
-    textbox.tag_config(pos, foreground="red")
+    textbox.tag_config(pos, foreground=color)
 
 def correcto(linea, textbox):
     pos = str(linea)
@@ -53,7 +58,7 @@ def buscar_data(texto, textbox, textbox_mem=None):
                     posicion += 1
                     correcto(pos_textbox, textbox)
             else:
-                error(pos_textbox, textbox)
+                error(pos_textbox, textbox, "red")
 
             pos_textbox += 1
         pos_textbox += 1
@@ -102,11 +107,23 @@ def buscar_code(texto, variables, pos_textbox, textbox):
             pass
         else:         # linea vacia
             valido = buscar(instrucciones_validas, linea)
+            
             if valido:
                 correcto(pos_textbox, textbox)
                 lineas_correctas += 1
             else:
-                error(pos_textbox, textbox)
+                valores = re.findall("[0-9]+|['#'][0-9A-F]+",linea)
+                error(pos_textbox, textbox,"red")
+                for val in valores:
+                    if val[0] == '#':
+                        val = int((val[1:]),16)
+                    else: 
+                        val = int(val)
+                
+                    if val > 256 or val < 0:
+                        error(pos_textbox, textbox, "yellow")
+                        
+                        
                 lineas_malas+=1
         pos_textbox += 1
 
@@ -130,14 +147,12 @@ def exp_regulares(lista):
 
 def buscar(exp_reg,texto): # exp_reg = {instruccion:expresion_regular}
     texto = re.sub(",", " ", texto)
-    
     for ins in exp_reg.values():
         x = re.search("['\s']*"+ins, texto)
         if x!=None:
             x = x.group(0)
             if len(x) == len(texto):
                 return True
-        
     return False
 
 
