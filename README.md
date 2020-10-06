@@ -34,4 +34,4 @@
 | "Editar > Pegar" 			| Pega en el texto seleccionado							|
 | "Editar > Seleccionar Todo"		| Selecciona todo los elemntos del texto seleccionado				|
 | "Ayuda > Ayuda" 			| Informacion de uso									|
-| "Ayuda > Acerca de"			|											|
+| "Ayuda > Acerca de"			| Mustra informacion de versiones 							|
