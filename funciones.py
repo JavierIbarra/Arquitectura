@@ -1,13 +1,17 @@
-from tkinter import *
-from tkinter import filedialog
-import tkinter.messagebox as MessageBox
-from funciones import *
+try:
+    from tkinter import *
+    from tkinter import filedialog
+    import tkinter.messagebox as MessageBox
+    import tkinter.font as tkFont
+except ImportError:
+    print(ImportError,"Se requiere el modulo Tkinter")
+
 import re
 
-def error(linea, textbox):
+def error(linea, textbox,color):
     pos = str(linea)
     textbox.tag_add(pos, pos+".0", pos+".90")
-    textbox.tag_config(pos, foreground="red")
+    textbox.tag_config(pos, foreground=color)
 
 def correcto(linea, textbox):
     pos = str(linea)
@@ -38,8 +42,6 @@ def buscar_data(texto, textbox, textbox_mem=None):
         pos_textbox = 1 
     else:
         pos_textbox = 2
-    if textbox_mem != None:
-        memoria = open("codigo.mem","w")
     texto = texto.split('\n')
     if texto != [""]:
         for linea in texto:
@@ -52,17 +54,14 @@ def buscar_data(texto, textbox, textbox_mem=None):
                     dicc[name] = posicion
                     if textbox_mem != None:
                         valor = binario(valor[1:])
-                        memoria.write(str(valor)+"\n")
                         textbox_mem.insert(INSERT, str(valor)+"\n")
                     posicion += 1
                     correcto(pos_textbox, textbox)
             else:
-                error(pos_textbox, textbox)
+                error(pos_textbox, textbox, "red")
 
             pos_textbox += 1
         pos_textbox += 1
-    if textbox_mem != None:
-        memoria.close()
 
     return dicc, pos_textbox
 
@@ -102,28 +101,46 @@ def buscar_code(texto, variables, pos_textbox, textbox):
     for linea in texto:
         if pos_textbox in posicion_direccionamiento:
             pos_textbox += 1
-        valido = buscar(instrucciones_validas, linea)
-        if valido:
-            correcto(pos_textbox, textbox)
-            lineas_correctas += 1
-        else:
-            error(pos_textbox, textbox)
-            lineas_malas+=1
+
+        x = re.findall("['\s''\n']+", linea)
+        if x == [] or len(x[0]) == len(linea):
+            pass
+        else:         # linea vacia
+            valido = buscar(instrucciones_validas, linea)
+            
+            instrucion_erronea = False
+            if valido:
+                correcto(pos_textbox, textbox)
+                lineas_correctas += 1
+
+            else:
+                error(pos_textbox, textbox,"red") 
+                instrucion_erronea = True    
+                lineas_malas+=1
+
+            valores = re.findall("[0-9]+|['#'][0-9A-F]+",linea)
+            for val in valores:
+                if val[0] == '#':
+                    val = int((val[1:]),16)
+                else: 
+                    val = int(val)
+
+                if (val > 256 or val < 0) and not instrucion_erronea:
+                    error(pos_textbox, textbox, "yellow")
+                    lineas_malas+=1
+
         pos_textbox += 1
 
-    MessageBox.showinfo("El programa detecto",
-                          "{correcto} lineas validas y {incorrecto} errores".format(correcto=lineas_correctas,
-                                                                                   incorrecto=lineas_malas))
-    return instrucciones_texto, inst, literales
+    return [instrucciones_texto, inst, literales, [lineas_correctas,lineas_malas]]
 
 
 def exp_regulares(lista):
     expreciones = {} 
     for txt in lista:
         exp = str(txt)
-        exp = re.sub("Lit", "((25[0-5]|[0-2]?[0-4]?[0-9])|['#'][A-F0-9][A-F0-9])", exp)
-        exp = re.sub("['(']Dir[')']", "['(']((25[0-5]|[0-2]?[0-4]?[0-9])|['#'][A-F0-9][A-F0-9])[')']", exp)
-        exp = re.sub("Dir", "((25[0-5]|[0-2]?[0-4]?[0-9])|['#'][A-F0-9][A-F0-9])", exp)
+        exp = re.sub("Lit", "([0-9]+|['#'][A-F0-9]+)", exp)
+        exp = re.sub("['(']Dir[')']", "['(']([0-9]+|['#'][A-F0-9]+)[')']", exp)
+        exp = re.sub("Dir", "([0-9]+|['#'][A-F0-9]+)", exp)
         exp = re.sub("['(']A[')']", "['(']A[')']", exp)
         exp = re.sub("['(']B[')']", "['(']B[')']", exp)
         exp = re.sub("\s", "['\\\s']+", exp)
@@ -134,14 +151,12 @@ def exp_regulares(lista):
 
 def buscar(exp_reg,texto): # exp_reg = {instruccion:expresion_regular}
     texto = re.sub(",", " ", texto)
-    
     for ins in exp_reg.values():
         x = re.search("['\s']*"+ins, texto)
         if x!=None:
             x = x.group(0)
             if len(x) == len(texto):
                 return True
-        
     return False
 
 
