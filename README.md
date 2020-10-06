@@ -35,3 +35,5 @@
 | "Editar > Seleccionar Todo"		| Selecciona todo los elemntos del texto seleccionado				|
 | "Ayuda > Ayuda" 			| Informacion de uso									|
 | "Ayuda > Acerca de"			| Mustra informacion de versiones 							|
+| "Ctrl + UP"				| Aumenta tamaño de la letra en los textbox						|
+| "Ctrl + DOWN"			| Disminuye tamaño de la letra en los textbox						|
