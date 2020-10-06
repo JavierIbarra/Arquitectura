@@ -1,8 +1,5 @@
 try:
-    from tkinter import *
-    from tkinter import filedialog
-    import tkinter.messagebox as MessageBox
-    import tkinter.font as tkFont
+    import tkinter as tk
 except ImportError:
     print(ImportError,"Se requiere el modulo Tkinter")
 
@@ -35,9 +32,45 @@ def separar(contenido):
     
     return respuesta
 
+def fuera_rango(pos_textbox, textbox, linea, lineas_malas):
+    rango_valido = True
+    valores = re.findall("[0-9]+|['#'][0-9A-F]+",linea)
+    for val in valores:
+        if val[0] == '#':
+            val = int((val[1:]),16)
+        else: 
+            val = int(val)
+        
+        if (val > 256 or val < 0):
+            error(pos_textbox, textbox, "yellow")
+            rango_valido = False
+            lineas_malas += 1
+    return rango_valido, lineas_malas 
+
+
+def variable_data(pos_textbox, textbox, linea, lineas_malas):       # variable no declarada en data
+    declarada = True
+    valores = re.findall("['('][a-z]+[0-9a-z]*[')']",linea)
+    if valores != []:
+        error(pos_textbox, textbox, "magenta")
+        declarada = False
+        lineas_malas += 1
+    return declarada, lineas_malas 
+
+def label_declarado(pos_textbox, textbox, linea, lineas_malas):       # label no declarada
+    declarada = True
+    valores = re.findall("[a-z]+[0-9a-z]*[':']",linea)
+    if valores != []:
+        error(pos_textbox, textbox, "cyan")
+        declarada = False
+        lineas_malas += 1
+    return declarada, lineas_malas 
+
 def buscar_data(texto, textbox, textbox_mem=None):
     dicc = {}
     posicion = 0
+    lineas_correctas = 0
+    lineas_malas = 0
     if texto == "":
         pos_textbox = 1 
     else:
@@ -45,40 +78,49 @@ def buscar_data(texto, textbox, textbox_mem=None):
     texto = texto.split('\n')
     if texto != [""]:
         for linea in texto:
-            x = re.search("['\s']*[a-z]+[a-z0-9]*['\s']+((25[0-5]|[0-2]?[0-4]?[0-9])|['#'][A-F0-9][A-F0-9])['\s']*", linea)
+            x = re.search("['\s']*[a-z]+[a-z0-9]*['\s']+([0-9]+|['#'][A-F0-9]+)", linea)
         
             if x != None:
                 if len(x.group()) == len(linea):
-                    name = re.search("[a-z]+[a-z0-9]*", linea).group()
-                    valor = re.search("['\s']((25[0-5]|[0-2]?[0-4]?[0-9])|['#'][A-F0-9][A-F0-9])", linea).group()
-                    dicc[name] = posicion
-                    if textbox_mem != None:
-                        valor = binario(valor[1:])
-                        textbox_mem.insert(INSERT, str(valor)+"\n")
-                    posicion += 1
-                    correcto(pos_textbox, textbox)
-            else:
+
+                    rango_valido, lineas_malas  = fuera_rango(pos_textbox, textbox, linea, lineas_malas)
+                    
+                    if rango_valido:
+                        name = re.search("[a-z]+[a-z0-9]*", linea).group()
+                        valor = re.search("['\s']([0-9]+|['#'][A-F0-9]+)", linea).group()
+                        dicc[name] = posicion
+                        if textbox_mem != None:
+                            valor = binario(valor[1:])
+                            textbox_mem.insert(tk.INSERT, str(valor)+"\n")
+                        posicion += 1
+                        correcto(pos_textbox, textbox)
+                        lineas_correctas+=1
+
+                else:
+                    error(pos_textbox, textbox, "red")
+                    lineas_malas+=1
+
+            if x == None and rango_valido:
                 error(pos_textbox, textbox, "red")
 
             pos_textbox += 1
         pos_textbox += 1
 
-    return dicc, pos_textbox
+    return dicc, pos_textbox, [lineas_correctas,lineas_malas]
 
 
-def buscar_code(texto, variables, pos_textbox, textbox):
+def buscar_code(texto, variables, pos_textbox, textbox, lineas):
 
     texto, posicion_direccionamiento = direccionamientos(texto)
 
     for val in variables:
         texto = texto.replace(val,str(variables[val]))
     instrucciones_texto = texto
-
-    
-    literales = re.findall("25[0-5]|[0-2]?[0-4]?[0-9]|['#'][A-F0-9][A-F0-9]",instrucciones_texto)       # guardamos literales
+     
+    literales = re.findall("[0-9]+|['#'][A-F0-9]+",instrucciones_texto)       # guardamos literales
     literales = binario_lista(literales)
-    instrucciones_texto = re.sub("['(']((25[0-5]|[0-2]?[0-4]?[0-9])|['#'][A-F0-9][A-F0-9])[')']","(Dir)",instrucciones_texto)
-    instrucciones_texto = re.sub("((25[0-5]|[0-2]?[0-4]?[0-9])|['#'][A-F0-9][A-F0-9])","Lit",instrucciones_texto)
+    instrucciones_texto = re.sub("['(']([0-9]+|['#'][A-F0-9]+)[')']","(Dir)",instrucciones_texto)
+    instrucciones_texto = re.sub("([0-9]+|['#'][A-F0-9]+)","Lit",instrucciones_texto)
     instrucciones_texto = re.sub("['\s']Lit['\n']"," Dir\n",instrucciones_texto)
 
     instrucciones = open("instrucciones.txt","r")
@@ -91,42 +133,40 @@ def buscar_code(texto, variables, pos_textbox, textbox):
 
     instrucciones_validas = exp_regulares(inst.keys())
 
-    lineas_malas = 0
-    lineas_correctas = 0
+    lineas_correctas = lineas[0]
+    lineas_malas = lineas[1]
     texto = texto.split('\n')
     n=0
     while n < len(posicion_direccionamiento):
         posicion_direccionamiento[n] += pos_textbox
         n+=1
     for linea in texto:
-        if pos_textbox in posicion_direccionamiento:
+        if pos_textbox-1 in posicion_direccionamiento:
             pos_textbox += 1
 
         x = re.findall("['\s''\n']+", linea)
-        if x == [] or len(x[0]) == len(linea):
-            pass
-        else:         # linea vacia
+        if x == []:
+            x = [""]
+
+        if len(x[0]) != len(linea):
             valido = buscar(instrucciones_validas, linea)
             
-            instrucion_erronea = False
             if valido:
-                correcto(pos_textbox, textbox)
-                lineas_correctas += 1
+                rango_valido, lineas_malas  = fuera_rango(pos_textbox, textbox, linea, lineas_malas)
+
+                if rango_valido:
+                    correcto(pos_textbox, textbox)
+                    lineas_correctas += 1
 
             else:
-                error(pos_textbox, textbox,"red") 
-                instrucion_erronea = True    
-                lineas_malas+=1
 
-            valores = re.findall("[0-9]+|['#'][0-9A-F]+",linea)
-            for val in valores:
-                if val[0] == '#':
-                    val = int((val[1:]),16)
-                else: 
-                    val = int(val)
+                declarado, lineas_malas = label_declarado(pos_textbox, textbox, linea, lineas_malas)
 
-                if (val > 256 or val < 0) and not instrucion_erronea:
-                    error(pos_textbox, textbox, "yellow")
+                if declarado:
+                    declarado, lineas_malas = variable_data(pos_textbox, textbox, linea, lineas_malas)
+
+                if declarado:
+                    error(pos_textbox, textbox,"red") 
                     lineas_malas+=1
 
         pos_textbox += 1
