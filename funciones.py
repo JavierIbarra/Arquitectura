@@ -59,8 +59,8 @@ def variable_data(pos_textbox, textbox, linea, lineas_malas):       # variable n
 
 def label_declarado(pos_textbox, textbox, linea, lineas_malas):       # label no declarada
     declarada = True
-    valores = re.findall("[a-z]+[0-9a-z]*[':']",linea)
-    if valores != []:
+    valores = re.findall("['\s']+[a-z]+[0-9a-z]*",linea)
+    if valores != [] and len(valores) == 1:
         error(pos_textbox, textbox, "cyan")
         declarada = False
         lineas_malas += 1
@@ -159,7 +159,6 @@ def buscar_code(texto, variables, pos_textbox, textbox, lineas):
                     lineas_correctas += 1
 
             else:
-
                 declarado, lineas_malas = label_declarado(pos_textbox, textbox, linea, lineas_malas)
 
                 if declarado:
@@ -192,7 +191,7 @@ def exp_regulares(lista):
 def buscar(exp_reg,texto): # exp_reg = {instruccion:expresion_regular}
     texto = re.sub(",", " ", texto)
     for ins in exp_reg.values():
-        x = re.search("['\s']*"+ins, texto)
+        x = re.search("['\s']*"+ins+"['\s']*", texto)
         if x!=None:
             x = x.group(0)
             if len(x) == len(texto):

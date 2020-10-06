@@ -182,7 +182,7 @@ class MainApp(tk.Tk):
         t1.wait_window(t1)
 
     def acerca_de(self):
-        MessageBox.showinfo("Acerca de", "ASSEMBLER\n\nversion: 0.2\ncommit: f2fed58b00ea5363dbd165966142737b70e4c2d6\nfecha: 06.10.2020\npython: 3.8\ntkinter: 8.6" )
+        MessageBox.showinfo("Acerca de", "ASSEMBLER\n\nversion: 0.2\ncommit: 83f9206b08caacebcf11cba2bf0f0b6f828e36ca\nfecha: 06.10.2020\npython: 3.8\ntkinter: 8.6" )
 
     def increase_text_font(self, event):
         fontsize = self.text_font['size'] 
