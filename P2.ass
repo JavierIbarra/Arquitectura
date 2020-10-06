@@ -11,7 +11,7 @@ CODE:
 		MOV B,(largo)
 		MOV A,(inicio)
 		CMP A,B
-		JNE fin
+		JGE termino
 		MOV A,(B)
 		SUB B,1
 		MOV (largo),B
@@ -19,7 +19,8 @@ CODE:
 		MOV B,(B)
 		INC (inicio)
 		CMP A,B
-		JNE ciclo
-	fin:
-		MOV A,1
+		JEQ ciclo
+		MOV A,0	
 		MOV (res),A
+	termino:
+		MOV A,(res)
