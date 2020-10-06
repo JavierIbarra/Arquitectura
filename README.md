@@ -21,15 +21,17 @@
 * El de abajo a la izquierda muestra el binario de la memoria inicial del codigo
 
 **Opciones del menu:**
-* "Archivos > Guardar como" 		--->  Genera tres archivo(*.ass,*.data,*.out)
-* "Archivos > Cargar"			---> Carga el archivo especificado 
-* "Ejecutar > Recalcular Errores" 	--->  Muestra los errores del codigo
-* "Ejecutar > Assembler" 		---> Crea los binarios del codigo y memoria (no guarda los archivos automaticamente)
-* "Editar > Deshacer" 			---> Elimina ultimo cambio realizado
-* "Editar > Rehacer" 			---> Recupera ultimo cambio deshecho
-* "Editar > Cortar" 			---> Corta elemento seleccionado
-* "Editar > Copiar" 			---> Copia elemento seleccionado
-* "Editar > Pegar" 			---> Pega en el texto seleccionado
-* "Editar > Seleccionar Todo"		---> Selecciona todo los elemntos del texto seleccionado
-* "Ayuda > Ayuda" 			---> Informacion de uso
-* "Ayuda > Acerca de"	
+| 		Operacion		| 				Descripcion						|
+| 		--			|				--							|
+| "Archivos > Guardar como" 		| Genera tres archivo(*.ass,*.data,*.out)						| 
+| "Archivos > Cargar"			| Carga el archivo especificado							|
+| "Ejecutar > Recalcular Errores" 	| Muestra los errores del codigo							|
+| "Ejecutar > Assembler" 		| Crea los binarios del codigo y memoria (no guarda los archivos automaticamente)	|
+| "Editar > Deshacer" 			| Elimina ultimo cambio realizado							|
+| "Editar > Rehacer" 			| Recupera ultimo cambio deshecho							|
+| "Editar > Cortar" 			| Corta elemento seleccionado								|
+| "Editar > Copiar" 			| Copia elemento seleccionado								|
+| "Editar > Pegar" 			| Pega en el texto seleccionado							|
+| "Editar > Seleccionar Todo"		| Selecciona todo los elemntos del texto seleccionado				|
+| "Ayuda > Ayuda" 			| Informacion de uso									|
+| "Ayuda > Acerca de"			|											|
