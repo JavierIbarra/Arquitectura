@@ -8,8 +8,8 @@ CODE:
 	ADD B,A
 	MOV (largo),B
 	ciclo:
-		MOV B,(largo)
-		MOV A,(inicio)
+		MOV B,(inicio)
+		MOV A,(largo)
 		CMP A,B
 		JNE fin
 		MOV A,(B)
