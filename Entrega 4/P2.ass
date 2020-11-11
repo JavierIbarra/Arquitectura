@@ -8,10 +8,10 @@ CODE:
 	ADD B,A
 	MOV (largo),B
 	ciclo:
-		MOV B,(largo)
-		MOV A,(inicio)
+		MOV B,(inicio)
+		MOV A,(largo)
 		CMP A,B
-		JGE termino
+		JNE fin
 		MOV A,(B)
 		SUB B,1
 		MOV (largo),B
@@ -19,8 +19,7 @@ CODE:
 		MOV B,(B)
 		INC (inicio)
 		CMP A,B
-		JEQ ciclo
-		MOV A,0	
+		JNE ciclo
+	fin:
+		MOV A,1
 		MOV (res),A
-	termino:
-		MOV A,(res)

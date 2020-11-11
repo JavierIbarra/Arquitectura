@@ -29,7 +29,7 @@ def separar(contenido):
     if data == None and code == None:
         respuesta.append(contenido)
         respuesta.append('')
-    
+
     return respuesta
 
 def fuera_rango(pos_textbox, textbox, linea, lineas_malas):
@@ -71,6 +71,7 @@ def buscar_data(texto, textbox, textbox_mem=None):
     posicion = 0
     lineas_correctas = 0
     lineas_malas = 0
+    rango_valido = True
     if texto == "":
         pos_textbox = 1 
     else:
@@ -222,6 +223,9 @@ def binario(h):
         
 
 def direccionamientos(texto):
+    texto = re.sub("[':']['\s']", ":\n", texto)
+    texto = re.sub("[':']['\t']", ":\n", texto)
+    
     lineas = texto.split('\n')
     nombre_direcciones = (re.findall("[a-z]+[':']",texto))
     direcciones = {}
